@@ -15,4 +15,4 @@ The installer of this project is to **Debian with SUDO installed** and added sup
 
 - Extract hplip-*version*.tar.gz
 - Join in extracted folder
-- Execute ./hplip-installer
+- Execute ./hplip-install
