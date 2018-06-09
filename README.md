@@ -13,6 +13,6 @@ The installer of this project is to **Debian with SUDO installed** and added sup
 
 ## Installing
 
-- Extract hplip-*version*.tar.gz
-- Join in extracted folder
+- Extract hplip-*version*.zip or cloneGit
+- Join in folder
 - Execute ./hplip-install
