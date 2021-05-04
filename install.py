@@ -23,7 +23,7 @@ from __future__ import print_function
 __version__ = '5.1'
 __title__ = 'HPLIP Installer'
 __mod__ = 'hplip-install'
-__doc__ = "Installer for HPLIP tarball (called automatically after invoking the .run file)."
+__doc__ = "This is a FORK from installer but UNOFFICIAL, optimized for Zorin OS 15."
 
 
 # Std Lib

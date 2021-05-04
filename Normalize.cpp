@@ -1,7 +1,7 @@
 #include"Normalize.h"
 
 /** string array of family classes                 */
-string FAMILY_CLASSES[MAX_FAMILY_CLASS] = { "PCL3-Class1A", "PCL3-Class1", "PCL3-Class2", "PCLM","PCL3-Class1B","PCL3-Class1C","PCL3-Class2A","PCL3-Class2B","PCL3-Class3","PCL3-Class3A","PCL3-Class3B","PCL4-Class1","LJ-Class1","LJ-Class2","LJ-Class3","LJ-Class4","LJ-Class4A","LJ-Class5","LJ-Class6"}; 
+string FAMILY_CLASSES[MAX_FAMILY_CLASS] = {"PCL3-Class3A","PCL3-Class3B","PCL3-Class3","PCLM-COLOR","PCLM-MONO","PCL4-Class1","LJ-Class1","LJ-Class2","LJ-Class3","LJ-Class4","LJ-Class4A","LJ-Class5","LJ-Class6","DJGenericVIP","DJ9xxVIP","DJ55xx","Stabler","StingrayOJ","Copperhead","CopperheadXLP","Copperhead12","CopperheadIPH","CopperheadIPH15","CopperheadIPH17","CLE","CLE17","PyramidRefresh17","Saipan","Saipan15B","Kapan","ViperPlusVIP","ViperMinusVIP","Corbett","Ampere","Python","Python10","Python11","Mimas","Mimas15","Mimas17","MimasTDR","PyramidRefresh15","P15_CISS","Pyramid","Pyramid15","PyramidPlus","Gemstone","SPDOfficejetProAsize","SPDOfficejetProBsize","OJ7000","OJProKx50","PSP100","PSP470"}; 
 
 /** string array of tech classes                 */
 string TECH_CLASSES[MAX_TECH_CLASS] = {
@@ -79,7 +79,9 @@ string TECH_CLASSES[MAX_TECH_CLASS] = {
     "CLE",
     "SPDOfficejetProBsize",
     "CLE17",
-    "Mimas17"
+    "Mimas17",
+    "P15_CISS"
+   
 };
 
 /** string array of tech sub classes                 */
@@ -112,38 +114,57 @@ string TECH_SUBCLASSES[MAX_SUB_CLASS] = {
     "Advanced",
     "Mono",
     "Color",
+    "Mono_Duplex",
     "AutoDuplex",
     "K10"
 };
 
 /** string array of shortening replacements                 */
 string SHORTENING_REPLACEMENTS[MAX_SHORTENING_REPLACEMENTS] = {
+"Color",
 "color laserjet",
 "laserjet",
+"LaserJet",
 "photosmart",
+"Photosmart",
 "deskjet",
+"Deskjet",
 "color inkjet printer",
 "officejet",
+"Officejet",
 "business inkjet",
 "designjet",
 "printer scanner copier",
 "color lj",
-"professional"
+"professional",
+"Professional",
+"Inkjet",
+"Wireless",
+"Tank",
 };
 
 /** string array of shortening replacements values                 */
 string SHORTENING_REPLACEMENTS_VALUE[MAX_SHORTENING_REPLACEMENTS] = {
+"CJ",
 "CJL",
 "LJ",
+"LJ",
+"PS",
 "PS",
 "DJ",
+"DJ",
 "",
+"OJ",
 "OJ",
 "BIJ",
 "DESIGNJ",
 "PSC",
 "CLJ",
-"Pro"
+"Pro",
+"Pro",
+"IJ",
+"WL",
+"TK",
 };
 
 /** @brief create vector of STRING STRING pair
@@ -223,6 +244,7 @@ PAIR_VECTOR TechClassPdlKeySvalues()
     TECH_CLASS_KEY_VALUE.push_back(make_pair("SPDOfficejetProBsize", "pcl3"));
     TECH_CLASS_KEY_VALUE.push_back(make_pair("CLE17", "pcl3"));
     TECH_CLASS_KEY_VALUE.push_back(make_pair("Mimas17", "pcl3"));
+    TECH_CLASS_KEY_VALUE.push_back(make_pair("P15_CISS", "pcl3"));
     return TECH_CLASS_KEY_VALUE;
 }
 
