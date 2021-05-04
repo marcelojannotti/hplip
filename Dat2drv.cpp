@@ -215,6 +215,21 @@ string SetSubClass(STRING_VECTOR sub_class)
    return subclass;
 }
 
+/** @brief convert the vector into the string for adding subclass for  family-class ppd name
+ *
+ *  @param sub_class vector of sub classed
+ *  @return string
+ *
+ */
+string SetFamilySubClass(STRING_VECTOR sub_class)
+{
+   string subclass = "";
+   for(unsigned int count = 0; count< sub_class.size(); count ++)
+      subclass += sub_class[count] + '-';
+   subclass.assign(subclass, 0, subclass.length() - 1);
+   return subclass;
+}
+
 /** @brief setting the path of the model.dat, drv & set the name of template files
  *
  *  @return DRV_DATA
@@ -264,10 +279,8 @@ int TechClassExsist(string tech_class)
   {
      if (tech_class == TECH_CLASSES[count])
          return 1;
-     if(count < 4 && tech_class == FAMILY_CLASSES[count])
-         return 0 ;
   }  
-  fprintf(stderr, "DAT2DRV : FAILED IN TechClassExsist(string tech_class) -> = NO TECH CLASS MATCH FOUND\n");   
+  //fprintf(stderr, "DAT2DRV : FAILED IN TechClassExsist(string tech_class) -> = NO TECH CLASS MATCH FOUND\n");   
   return -1;
 }
 
@@ -452,6 +465,8 @@ char CreateFamilyClassDrv(DRV_DATA drv_data, MODEL_DICT_MAP model_dict, string m
     string family_class = "",
            line         = "";
     STRING_VECTOR matches;
+    STRING_VECTOR sub_class;
+
     fstream file_in_pointer, file_out_pointer;
 
     file_in_pointer.open(drv_data.drv_in_template.c_str(), fstream::in);
@@ -470,18 +485,33 @@ char CreateFamilyClassDrv(DRV_DATA drv_data, MODEL_DICT_MAP model_dict, string m
 
     while((getline(file_in_pointer, line)))
     {
-            size_t found = line.find("%");
+            string search_family_class;
             stringstream f(line);
+            size_t found = line.find("%");
             file_out_pointer << line + "\n"; 
             if(found != std::string::npos)
             {
                found = line.find("//"); 
                if(found != std::string::npos)
                {
-                  while(getline(f, family_class, '%'))
+                  while(getline(f, search_family_class, '%'))
                   {   
-                     if(family_class[0] == ' ' || family_class[0] == '>' || family_class[3] == '/')  
+                     if(search_family_class[0] == ' ' || search_family_class[0] == '>' || search_family_class[3] == '/')  
                          continue;
+
+                     stringstream f1(search_family_class);
+                     unsigned char len = 0;
+                     sub_class.clear();
+                     while(getline(f1, search_family_class, ':'))
+		     {
+                        if(len == 0)
+                        {
+                           family_class = search_family_class;
+                           len ++;
+                        }
+			else 
+                           sub_class.push_back(search_family_class);
+	             }
 
                      for(unsigned char count = 0 ; count < MAX_FAMILY_CLASS; count ++)
                      {
@@ -507,8 +537,11 @@ char CreateFamilyClassDrv(DRV_DATA drv_data, MODEL_DICT_MAP model_dict, string m
                      matches =  CreateFamilyClassMatch(model_dict, family_class);
                      if(matches.size() > 0)
                      {
-                        string model_name = family_class;
-                        string orignal_model_name = model_name;
+                        std::string model_name = family_class;
+			std::replace( model_name.begin(), model_name.end(), '_', '-');// replace all '_' to '-' in model name
+                      
+                        std::string orignal_model_name = model_name;
+                        std::replace( orignal_model_name.begin(), orignal_model_name.end(), '_', '-');// replace all '_' to '-' in family class
 
                         indent1 = "";
                         indent2 = "";
@@ -595,29 +628,41 @@ char CreateFamilyClassDrv(DRV_DATA drv_data, MODEL_DICT_MAP model_dict, string m
                             write_data = "";
                             write_data += indent2 + "Attribute \"1284DeviceID\" \"\" \"" + devid + "\"\n";
                             file_out_pointer << write_data;
- 
-                          if(family_class != POST_SCRIPT)
-                          {
-                                  write_data = "";
-                                  write_data += indent2+"PCFileName \"" + FixFileName(family_class) +".ppd\"\n";
+                            string subclass_name = SetFamilySubClass(sub_class); 
+			 
+                            std::string family_class_final = family_class;
+                            std::replace( family_class_final.begin(), family_class_final.end(), '_', '-'); // replace all '_' to '-' in family class
+                                                                        
+                            if(family_class != POST_SCRIPT)
+                            {
+                                 write_data = "";
+                                 if(sub_class.size()!=0)
+                                 {
+                                  write_data += indent2+"PCFileName \"" + FixFileName(family_class_final) + "-" +subclass_name +".ppd\"\n";
+                                 }
+                                 else
+                                 {
+                                 write_data += indent2+"PCFileName \"" + FixFileName(family_class_final) +".ppd\"\n";
+                                 }
+
                                   file_out_pointer << write_data;
                           
-                          }
+                            }
                           else if (family_class == PDF)  
                           {
                                 write_data = "";
-                                write_data += indent2+"PCFileName \""+ FixFileName(family_class) + "-pdf.ppd\"\n";
+                                write_data += indent2+"PCFileName \""+ FixFileName(family_class_final) + "-pdf.ppd\"\n";
                                 file_out_pointer << write_data;
 
                           }
                           else
                           {
                                 write_data = "";
-                                write_data +=indent2+"PCFileName \""+ FixFileName(family_class) + "-ps.ppd\"\n";
+                                write_data +=indent2+"PCFileName \""+ FixFileName(family_class_final) + "-ps.ppd\"\n";
                                 file_out_pointer << write_data;
                           } 
                           write_data = "";
-                          write_data +=indent2+"Attribute \"Product\" \"\" \"("+ family_class + ")\"\n";
+                          write_data +=indent2+"Attribute \"Product\" \"\" \"("+ family_class_final + ")\"\n";
                           file_out_pointer << write_data;
 
                           file_out_pointer << indent1 + "}\n";
@@ -703,16 +748,7 @@ char CreateTechClassDrv(DRV_DATA drv_data, MODEL_DICT_MAP model_dict, STRING_PAI
 			else 
                            sub_class.push_back(search_tech_class);
 	             }
-                     for(unsigned char count = 0 ; count < MAX_FAMILY_CLASS; count ++)
-                     {
-                         found = 0;
-                         if(tech_class == FAMILY_CLASSES[count])
-                         { 
-                            found = 1;  
-                            break;  
-                         } 
-                     }
-                     if((found == 1) || (TechClassExsist(tech_class)) != 1)
+                     if((TechClassExsist(tech_class)) != 1)
                          continue;
                      if((SubClassExsist(sub_class)) != 1)
                          continue;
@@ -853,8 +889,48 @@ char CreateTechClassDrv(DRV_DATA drv_data, MODEL_DICT_MAP model_dict, STRING_PAI
                             if(bHpijs)
                               write_data += indent2 + "Attribute \"ShortNickName\" \"\" " + "\"" + model_name + "\"" + "\n";
                             else
-                              write_data += indent2 + "Attribute \"ShortNickName\" \"\" " + "\"" + model_name + " hpijs\"" + "\n";
-
+                            {
+                             string write_data1= "";
+                              write_data1 = model_name + " hpijs";
+                              if(write_data1.length() > 31)
+                              {                              
+                              ShortModelLength(write_data1);                              
+                              }
+                              if (write_data1.length() > 31)
+                          {
+                             index = write_data1.find("Plus"); 
+                             if(index != string::npos)
+                             { 
+                                write_data1.replace(index, 4, "Ps");
+                                index = write_data1.find("  ");
+                                if(index != string::npos)
+                                  write_data1.replace(index, 2, " ");
+                              }
+                          }
+                          
+                          if (write_data1.length() > 31)
+                          {
+                             index = write_data1.find("Neverstop"); 
+                             if(index != string::npos)
+                             { 
+                                write_data1.replace(index, 9, "Ns");
+                                index = write_data1.find("  ");
+                                if(index != string::npos)
+                                  write_data1.replace(index, 2, " ");
+                             }}
+                             
+                             if (write_data1.length() > 31)
+                          {
+                             index = write_data1.find("Printer"); 
+                             if(index != string::npos)
+                             { 
+                                write_data1.replace(index, 7, "Pt");
+                                index = write_data1.find("  ");
+                                if(index != string::npos)
+                                  write_data1.replace(index, 2, " ");
+                             }}
+                              write_data += indent2 + "Attribute \"ShortNickName\" \"\" " + "\"" + write_data1 + "\"" + "\n";                              
+			     }
                             file_out_pointer << write_data;
                              
                             string pp = matches[len];
