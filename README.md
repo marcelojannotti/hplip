@@ -6,7 +6,7 @@ This project is a fork of Official sourceForge hplip project. https://sourceforg
 
 The purpose of this version is to improve Zorin 15 support on hplip installer.
 
-The version installer of this project is to **Zorin 15 with SUDO installed**, for debian 8 check the another version
+The version installer of this project is to **Zorin 15 with SUDO installed**, for debian 8 check the other version
 
 ## Installing
 
